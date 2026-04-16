@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odissi Dance Quiz</title>
+
+  <!-- Elegant serif font for classical feel -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* ========== CSS VARIABLES ========== */
+    :root {
+      --bg-deep: #2f1b18;
+      --bg-main: #4b2e2b;
+      --accent-gold: #c9a44c;
+      --accent-gold-light: #e0c478;
+      --text-beige: #f5e6d3;
+      --text-muted: #c4a99a;
+      --correct-green: #4a9e6e;
+      --wrong-red: #b84a4a;
+      --card-bg: rgba(47, 27, 24, 0.6);
+      --border-gold: rgba(201, 164, 76, 0.25);
+    }
+
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      background: var(--bg-main);
+      color: var(--text-beige);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* ========== LAYERED BACKGROUND ========== */
+    /* Base gradient */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(201, 164, 76, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(201, 164, 76, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, var(--bg-main) 0%, var(--bg-deep) 100%);
+    }
+
+    /* Subtle noise texture overlay */
+    .bg-layer::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* ========== MANDALA DECORATIONS ========== */
+    .mandala {
+      position: fixed;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.045;
+    }
+
+    .mandala--top-left {
+      top: -120px;
+      left: -120px;
+      width: 400px;
+      height: 400px;
+    }
+
+    .mandala--bottom-right {
+      bottom: -100px;
+      right: -100px;
+      width: 350px;
+      height: 350px;
+    }
+
+    .mandala--top-right {
+      top: -60px;
+      right: -60px;
+      width: 220px;
+      height: 220px;
+      opacity: 0.035;
+    }
+
+    .mandala--bottom-left {
+      bottom: -40px;
+      left: -40px;
+      width: 200px;
+      height: 200px;
+      opacity: 0.035;
+    }
+
+    /* ========== TEMPLE BORDER MOTIF ========== */
+    .temple-border {
+      position: fixed;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .temple-border--top {
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background:
+        linear-gradient(180deg, rgba(201,164,76,0.12) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border-gold);
+    }
+
+    .temple-border--bottom {
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background:
+        linear-gradient(0deg, rgba(201,164,76,0.12) 0%, transparent 100%);
+      border-top: 1px solid var(--border-gold);
+    }
+
+    /* Repeating temple arch pattern along top */
+    .temple-border--top::after {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 20px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 20'%3E%3Cpath d='M0 20 Q10 0 20 20 Q30 0 40 20 Q50 0 60 20 Q70 0 80 20' fill='none' stroke='rgba(201,164,76,0.2)' stroke-width='1'/%3E%3C/svg%3E");
+      background-repeat: repeat-x;
+      background-size: 80px 20px;
+    }
+
+    .temple-border--bottom::after {
+      content: '';
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 20px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 20'%3E%3Cpath d='M0 0 Q10 20 20 0 Q30 20 40 0 Q50 20 60 0 Q70 20 80 0' fill='none' stroke='rgba(201,164,76,0.2)' stroke-width='1'/%3E%3C/svg%3E");
+      background-repeat: repeat-x;
+      background-size: 80px 20px;
+    }
+
+    /* ========== DANCER SILHOUETTE ========== */
+    .dancer-silhouette {
+      position: fixed;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.04;
+      bottom: 5%;
+      right: 5%;
+      width: 280px;
+      height: auto;
+      filter: blur(0.5px);
+    }
+
+    .dancer-silhouette--left {
+      right: auto;
+      left: 5%;
+      bottom: 8%;
+      width: 200px;
+      opacity: 0.03;
+      transform: scaleX(-1);
+    }
+
+    /* ========== SCREENS ========== */
+    .screen {
+      position: absolute;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      max-width: 640px;
+      padding: 2rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    .screen.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ========== START SCREEN ========== */
+    .start-ornament {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+      margin-bottom: 1.5rem;
+      opacity: 0.7;
+    }
+
+    .start-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 6vw, 3.8rem);
+      font-weight: 700;
+      color: var(--text-beige);
+      letter-spacing: 0.04em;
+      line-height: 1.2;
+      margin-bottom: 0.6rem;
+    }
+
+    .start-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* Decorative divider under subtitle */
+    .start-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2.5rem;
+      opacity: 0.5;
+    }
+
+    .start-divider span {
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: var(--accent-gold);
+    }
+
+    .start-divider .diamond {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-gold);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
+
+    /* ========== BUTTONS ========== */
+    .btn {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1.5px solid var(--accent-gold);
+      border-radius: 50px;
+      padding: 14px 48px;
+      background: transparent;
+      color: var(--accent-gold);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      animation: floatBtn 4s ease-in-out infinite;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light), var(--accent-gold));
+      opacity: 0;
+      z-index: -1;
+      transition: opacity 0.4s ease;
+    }
+
+    .btn:hover {
+      color: var(--bg-deep);
+      border-color: var(--accent-gold-light);
+      transform: scale(1.06);
+      box-shadow:
+        0 0 15px rgba(201, 164, 76, 0.4),
+        0 0 35px rgba(201, 164, 76, 0.2),
+        0 0 60px rgba(201, 164, 76, 0.1),
+        0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn:hover::before {
+      opacity: 1;
+    }
+
+    .btn:active {
+      transform: scale(1.02);
+    }
+
+    @keyframes floatBtn {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .btn:hover {
+      animation: none;
+    }
+
+    /* ========== QUIZ SCREEN ========== */
+    .quiz-progress {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+
+    .quiz-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1.5px solid var(--accent-gold);
+      background: transparent;
+      transition: all 0.4s ease;
+    }
+
+    .quiz-dot.filled {
+      background: var(--accent-gold);
+      box-shadow: 0 0 8px rgba(201, 164, 76, 0.4);
+    }
+
+    .quiz-dot.correct-dot {
+      background: var(--correct-green);
+      border-color: var(--correct-green);
+      box-shadow: 0 0 8px rgba(74, 158, 110, 0.4);
+    }
+
+    .quiz-dot.wrong-dot {
+      background: var(--wrong-red);
+      border-color: var(--wrong-red);
+      box-shadow: 0 0 8px rgba(184, 74, 74, 0.4);
+    }
+
+    .quiz-question-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.8rem;
+    }
+
+    .quiz-question {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+      font-weight: 400;
+      color: var(--text-beige);
+      line-height: 1.5;
+      margin-bottom: 2rem;
+      max-width: 520px;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .quiz-option {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 14px 24px;
+      background: var(--card-bg);
+      color: var(--text-beige);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.35s ease;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(4px);
+    }
+
+    .quiz-option::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--accent-gold);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .quiz-option:hover:not(:disabled) {
+      border-color: var(--accent-gold);
+      background: rgba(201, 164, 76, 0.08);
+      transform: translateX(4px);
+      box-shadow:
+        0 0 12px rgba(201, 164, 76, 0.15),
+        0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .quiz-option:hover:not(:disabled)::before {
+      opacity: 1;
+    }
+
+    .quiz-option:disabled {
+      cursor: default;
+      transform: none !important;
+    }
+
+    .quiz-option.correct {
+      border-color: var(--correct-green);
+      background: rgba(74, 158, 110, 0.15);
+      box-shadow: 0 0 20px rgba(74, 158, 110, 0.2);
+    }
+
+    .quiz-option.correct::before {
+      background: var(--correct-green);
+      opacity: 1;
+    }
+
+    .quiz-option.wrong {
+      border-color: var(--wrong-red);
+      background: rgba(184, 74, 74, 0.15);
+      box-shadow: 0 0 20px rgba(184, 74, 74, 0.2);
+    }
+
+    .quiz-option.wrong::before {
+      background: var(--wrong-red);
+      opacity: 1;
+    }
+
+    /* Option letter prefix */
+    .option-label {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      text-align: center;
+      border-radius: 50%;
+      border: 1px solid var(--border-gold);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-right: 12px;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .quiz-option.correct .option-label {
+      border-color: var(--correct-green);
+      color: var(--correct-green);
+    }
+
+    .quiz-option.wrong .option-label {
+      border-color: var(--wrong-red);
+      color: var(--wrong-red);
+    }
+
+    .option-text {
+      display: inline;
+      vertical-align: middle;
+    }
+
+    /* ========== RESULT SCREEN ========== */
+    .result-ornament {
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+      margin-bottom: 1.2rem;
+    }
+
+    .result-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      color: var(--text-beige);
+      margin-bottom: 0.5rem;
+    }
+
+    .result-score {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+      font-weight: 300;
+      color: var(--text-muted);
+      margin-bottom: 0.8rem;
+    }
+
+    .result-score strong {
+      color: var(--accent-gold);
+      font-weight: 700;
+      font-size: 1.5em;
+    }
+
+    .result-message {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      max-width: 400px;
+      line-height: 1.6;
+    }
+
+    /* Decorative lotus-like element for result */
+    .result-lotus {
+      margin-bottom: 2rem;
+      opacity: 0.3;
+    }
+
+    /* ========== FLOATING PARTICLES ========== */
+    .particle {
+      position: fixed;
+      z-index: 2;
+      pointer-events: none;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      opacity: 0;
+    }
+
+    /* ========== REDUCED MOTION ========== */
+    @media (prefers-reduced-motion: reduce) {
+      .btn {
+        animation: none;
+      }
+      .screen {
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+      .quiz-option:hover:not(:disabled) {
+        transform: none;
+      }
+      .particle {
+        display: none;
+      }
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 480px) {
+      .screen {
+        padding: 1.5rem 1.2rem;
+      }
+      .quiz-options {
+        max-width: 100%;
+      }
+      .btn {
+        padding: 12px 36px;
+        font-size: 1rem;
+      }
+      .dancer-silhouette {
+        width: 160px;
+        opacity: 0.025;
+      }
+      .dancer-silhouette--left {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== BACKGROUND LAYERS ===== -->
+  <div class="bg-layer" aria-hidden="true"></div>
+
+  <!-- Temple border motifs -->
+  <div class="temple-border temple-border--top" aria-hidden="true"></div>
+  <div class="temple-border temple-border--bottom" aria-hidden="true"></div>
+
+  <!-- ===== MANDALA SVGs (decorative, very faint) ===== -->
+  <svg class="mandala mandala--top-left" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="200" cy="200" r="190" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="160" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="130" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="100" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="70" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <!-- Petal shapes -->
+    <g stroke="rgba(201,164,76,1)" stroke-width="0.5" fill="none">
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(30 200 200)"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(60 200 200)"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(90 200 200)"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(120 200 200)"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(150 200 200)"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(180 200 200)"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(210 200 200)"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(240 200 200)"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(270 200 200)"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(300 200 200)"/>
+      <path d="M200 10 Q220 100 200 200 Q180 100 200 10" transform="rotate(330 200 200)"/>
+    </g>
+    <!-- Outer decorative dots -->
+    <g fill="rgba(201,164,76,1)">
+      <circle cx="200" cy="5" r="2"/>
+      <circle cx="200" cy="395" r="2"/>
+      <circle cx="5" cy="200" r="2"/>
+      <circle cx="395" cy="200" r="2"/>
+    </g>
+  </svg>
+
+  <svg class="mandala mandala--bottom-right" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="200" cy="200" r="170" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="140" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="110" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="80" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="50" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <g stroke="rgba(201,164,76,1)" stroke-width="0.5" fill="none">
+      <path d="M200 30 Q210 120 200 200 Q190 120 200 30"/>
+      <path d="M200 30 Q210 120 200 200 Q190 120 200 30" transform="rotate(45 200 200)"/>
+      <path d="M200 30 Q210 120 200 200 Q190 120 200 30" transform="rotate(90 200 200)"/>
+      <path d="M200 30 Q210 120 200 200 Q190 120 200 30" transform="rotate(135 200 200)"/>
+      <path d="M200 30 Q210 120 200 200 Q190 120 200 30" transform="rotate(180 200 200)"/>
+      <path d="M200 30 Q210 120 200 200 Q190 120 200 30" transform="rotate(225 200 200)"/>
+      <path d="M200 30 Q210 120 200 200 Q190 120 200 30" transform="rotate(270 200 200)"/>
+      <path d="M200 30 Q210 120 200 200 Q190 120 200 30" transform="rotate(315 200 200)"/>
+    </g>
+  </svg>
+
+  <svg class="mandala mandala--top-right" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="100" cy="100" r="90" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="60" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <circle cx="100" cy="100" r="30" stroke="rgba(201,164,76,1)" stroke-width="0.5"/>
+    <g stroke="rgba(201,164,76,1)" stroke-width="0.5" fill="none">
+      <line x1="100" y1="10" x2="100" y2="190"/>
+      <line x1="10" y1="100" x2="190" y2="100"/>
+      <line x1="30" y1="30" x2="170" y2="170"/>
+      <line x1="170" y1="30" x2="30" y2="170"/>
+    </g>
+  </svg>
+
+  <svg class="mandala mandala--bottom-left" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect x="30" y="30" width="140" height="140" stroke="rgba(201,164,76,1)" stroke-width="0.5" rx="2" transform="rotate(45 100 100)"/>
+    <rect x="50" y="50" width="100" height="100" stroke="rgba(201,164,76,1)" stroke-width="0.5" rx="2" transform="rotate(45 100 100)"/>
+    <rect x="70" y="70" width="60" height="60" stroke="rgba(201,164,76,1)" stroke-width="0.5" rx="2" transform="rotate(45 100 100)"/>
+  </svg>
+
+  <!-- ===== ODISSI DANCER SILHOUETTES ===== -->
+  <svg class="dancer-silhouette" viewBox="0 0 300 500" fill="rgba(201,164,76,1)" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- Stylized Odissi dancer in Tribhangi pose -->
+    <path d="M150 30 C145 30 140 35 140 42 C140 52 148 58 150 58 C152 58 160 52 160 42 C160 35 155 30 150 30Z
+             M148 58 L145 80 C140 85 132 88 128 95 L120 120 C115 130 110 140 108 155
+             L100 180 C95 190 88 200 90 205 C92 210 100 208 105 200 L115 175
+             L125 150 L130 165 L135 200 C138 220 140 245 142 260
+             L140 300 C138 320 135 340 130 360 L125 400 C122 420 118 440 120 460
+             C121 470 128 475 132 470 L140 440 L148 380 L150 340
+             L152 380 L160 440 L168 470 C172 475 179 470 180 460
+             C182 440 178 420 175 400 L170 360 C165 340 162 320 160 300
+             L158 260 C160 245 162 220 165 200 L170 165 L175 150
+             L185 175 L195 200 C200 208 208 210 210 205 C212 200 205 190 200 180
+             L192 155 C190 140 185 130 180 120 L172 95 C168 88 160 85 155 80
+             L152 58
+             M145 80 C138 100 125 115 110 125 C100 132 90 138 85 145
+             M155 80 C162 100 175 115 190 125 C200 132 210 138 215 145
+             M142 260 C130 270 118 280 105 285 C95 288 85 285 80 278
+             M158 260 C170 270 182 280 195 285 C205 288 215 285 220 278"
+          fill="rgba(201,164,76,1)" stroke="none"/>
+  </svg>
+
+  <svg class="dancer-silhouette dancer-silhouette--left" viewBox="0 0 300 500" fill="rgba(201,164,76,1)" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M150 30 C145 30 140 35 140 42 C140 52 148 58 150 58 C152 58 160 52 160 42 C160 35 155 30 150 30Z
+             M148 58 L145 80 C140 85 132 88 128 95 L120 120 C115 130 110 140 108 155
+             L100 180 C95 190 88 200 90 205 C92 210 100 208 105 200 L115 175
+             L125 150 L130 165 L135 200 C138 220 140 245 142 260
+             L140 300 C138 320 135 340 130 360 L125 400 C122 420 118 440 120 460
+             C121 470 128 475 132 470 L140 440 L148 380 L150 340
+             L152 380 L160 440 L168 470 C172 475 179 470 180 460
+             C182 440 178 420 175 400 L170 360 C165 340 162 320 160 300
+             L158 260 C160 245 162 220 165 200 L170 165 L175 150
+             L185 175 L195 200 C200 208 208 210 210 205 C212 200 205 190 200 180
+             L192 155 C190 140 185 130 180 120 L172 95 C168 88 160 85 155 80
+             L152 58"
+          fill="rgba(201,164,76,1)" stroke="none"/>
+  </svg>
+
+  <!-- ===== FLOATING PARTICLES CONTAINER ===== -->
+  <div id="particles" aria-hidden="true"></div>
+
+  <!-- ===== START SCREEN ===== -->
+  <section class="screen active" id="startScreen" role="main" aria-label="Quiz start screen">
+    <div class="start-ornament"></div>
+    <h1 class="start-title">Odissi Dance Quiz</h1>
+    <p class="start-subtitle">Feel the rhythm of Odisha's classical soul</p>
+    <div class="start-divider" aria-hidden="true">
+      <span></span>
+      <div class="diamond"></div>
+      <span></span>
+    </div>
+    <button class="btn" id="startBtn" aria-label="Start the quiz">Start Quiz</button>
+  </section>
+
+  <!-- ===== QUIZ SCREEN ===== -->
+  <section class="screen" id="quizScreen" role="main" aria-label="Quiz questions">
+    <!-- Progress dots -->
+    <div class="quiz-progress" id="quizProgress" aria-label="Quiz progress"></div>
+    <!-- Question number label -->
+    <p class="quiz-question-number" id="questionNumber"></p>
+    <!-- Question text -->
+    <h2 class="quiz-question" id="questionText"></h2>
+    <!-- Options -->
+    <div class="quiz-options" id="optionsContainer" role="group" aria-label="Answer options"></div>
+  </section>
+
+  <!-- ===== RESULT SCREEN ===== -->
+  <section class="screen" id="resultScreen" role="main" aria-label="Quiz results">
+    <!-- Decorative lotus -->
+    <svg class="result-lotus" width="80" height="50" viewBox="0 0 80 50" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M40 48 C40 48 20 35 15 20 C12 12 20 5 40 5 C60 5 68 12 65 20 C60 35 40 48 40 48Z" stroke="rgba(201,164,76,1)" stroke-width="0.8" fill="none"/>
+      <path d="M40 48 C40 48 10 30 5 15 C2 5 15 0 40 0 C65 0 78 5 75 15 C70 30 40 48 40 48Z" stroke="rgba(201,164,76,1)" stroke-width="0.5" fill="none" transform="translate(-8, 2)"/>
+      <path d="M40 48 C40 48 10 30 5 15 C2 5 15 0 40 0 C65 0 78 5 75 15 C70 30 40 48 40 48Z" stroke="rgba(201,164,76,1)" stroke-width="0.5" fill="none" transform="translate(8, 2)"/>
+      <circle cx="40" cy="30" r="4" stroke="rgba(201,164,76,1)" stroke-width="0.5" fill="none"/>
+    </svg>
+    <div class="result-ornament"></div>
+    <h2 class="result-title" id="resultTitle"></h2>
+    <p class="result-score" id="resultScore"></p>
+    <p class="result-message" id="resultMessage"></p>
+    <button class="btn" id="restartBtn" aria-label="Restart the quiz">Restart Quiz</button>
+  </section>
+
+  <script>
+    /* ========================================================
+       QUIZ DATA — 3 questions about Odissi dance
+       ======================================================== */
+    const quizData = [
+      {
+        question: "Odissi dance originated in which Indian state?",
+        options: ["Tamil Nadu", "Odisha", "Kerala"],
+        correctIndex: 1  // Odisha
+      },
+      {
+        question: "Odissi dance is mainly associated with which form of expression?",
+        options: ["Martial arts", "Devotional storytelling (Bhakti)", "Folk comedy"],
+        correctIndex: 1  // Devotional storytelling
+      },
+      {
+        question: "What is the characteristic posture of Odissi dance called?",
+        options: ["Araimandi", "Tribhangi", "Samapada"],
+        correctIndex: 1  // Tribhangi
+      }
+    ];
+
+    const optionLabels = ['A', 'B', 'C'];
+
+    /* ========================================================
+       STATE
+       ======================================================== */
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+
+    /* ========================================================
+       DOM REFERENCES
+       ======================================================== */
+    const startScreen  = document.getElementById('startScreen');
+    const quizScreen   = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const startBtn     = document.getElementById('startBtn');
+    const restartBtn   = document.getElementById('restartBtn');
+    const progressEl   = document.getElementById('quizProgress');
+    const numberEl     = document.getElementById('questionNumber');
+    const questionEl   = document.getElementById('questionText');
+    const optionsEl    = document.getElementById('optionsContainer');
+    const resultTitle  = document.getElementById('resultTitle');
+    const resultScore  = document.getElementById('resultScore');
+    const resultMsg    = document.getElementById('resultMessage');
+
+    /* ========================================================
+       SCREEN TRANSITIONS
+       ======================================================== */
+    function showScreen(target) {
+      // Fade out all screens, then show the target
+      [startScreen, quizScreen, resultScreen].forEach(s => s.classList.remove('active'));
+      // Small delay so the CSS transition kicks in
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          target.classList.add('active');
+        });
+      });
+    }
+
+    /* ========================================================
+       BUILD PROGRESS DOTS
+       ======================================================== */
+    function buildProgress() {
+      progressEl.innerHTML = '';
+      for (let i = 0; i < quizData.length; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'quiz-dot' + (i <= currentQuestion ? ' filled' : '');
+        dot.setAttribute('aria-label', i < currentQuestion ? 'Completed' : i === currentQuestion ? 'Current' : 'Upcoming');
+        progressEl.appendChild(dot);
+      }
+    }
+
+    /* ========================================================
+       RENDER CURRENT QUESTION
+       ======================================================== */
+    function renderQuestion() {
+      answered = false;
+      const q = quizData[currentQuestion];
+
+      // Update progress
+      buildProgress();
+
+      // Question number
+      numberEl.textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+
+      // Question text
+      questionEl.textContent = q.question;
+
+      // Options
+      optionsEl.innerHTML = '';
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        btn.setAttribute('aria-label', `Option ${optionLabels[i]}: ${opt}`);
+        btn.innerHTML = `<span class="option-label">${optionLabels[i]}</span><span class="option-text">${opt}</span>`;
+
+        btn.addEventListener('click', () => handleAnswer(i, btn));
+
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    /* ========================================================
+       HANDLE ANSWER SELECTION
+       ======================================================== */
+    function handleAnswer(selectedIndex, selectedBtn) {
+      if (answered) return;
+      answered = true;
+
+      const q = quizData[currentQuestion];
+      const isCorrect = selectedIndex === q.correctIndex;
+      const allBtns = optionsEl.querySelectorAll('.quiz-option');
+
+      // Disable all buttons
+      allBtns.forEach(b => b.disabled = true);
+
+      // Highlight the correct answer
+      allBtns[q.correctIndex].classList.add('correct');
+
+      if (isCorrect) {
+        score++;
+        // Mark progress dot as correct
+        const dots = progressEl.querySelectorAll('.quiz-dot');
+        dots[currentQuestion].classList.add('correct-dot');
+      } else {
+        // Highlight the wrong selection
+        selectedBtn.classList.add('wrong');
+        // Mark progress dot as wrong
+        const dots = progressEl.querySelectorAll('.quiz-dot');
+        dots[currentQuestion].classList.add('wrong-dot');
+      }
+
+      // Auto-advance after 1.3 seconds
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < quizData.length) {
+          renderQuestion();
+        } else {
+          showResults();
+        }
+      }, 1300);
+    }
+
+    /* ========================================================
+       SHOW RESULTS
+       ======================================================== */
+    function showResults() {
+      // Title based on score
+      if (score === 3) {
+        resultTitle.textContent = 'Perfect Performance';
+        resultMsg.textContent = 'You truly understand the grace and depth of Odissi. A devotee of the dance indeed.';
+      } else if (score === 2) {
+        resultTitle.textContent = 'Graceful Effort';
+        resultMsg.textContent = 'Almost there — you clearly appreciate the beauty of this ancient art form.';
+      } else if (score === 1) {
+        resultTitle.textContent = 'A Beginning';
+        resultMsg.textContent = 'Every journey starts with a single step. Keep exploring the world of Odissi.';
+      } else {
+        resultTitle.textContent = 'Keep Learning';
+        resultMsg.textContent = 'Odissi has centuries of wisdom to share. Dive in and try again.';
+      }
+
+      resultScore.innerHTML = `You got <strong>${score}</strong> out of <strong>${quizData.length}</strong> correct!`;
+
+      showScreen(resultScreen);
+    }
+
+    /* ========================================================
+       RESTART QUIZ
+       ======================================================== */
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      answered = false;
+      showScreen(quizScreen);
+      // Small delay to let transition happen before rendering
+      setTimeout(renderQuestion, 100);
+    }
+
+    /* ========================================================
+       EVENT LISTENERS
+       ======================================================== */
+    startBtn.addEventListener('click', () => {
+      showScreen(quizScreen);
+      setTimeout(renderQuestion, 100);
+    });
+
+    restartBtn.addEventListener('click', restartQuiz);
+
+    /* ========================================================
+       FLOATING PARTICLES — subtle gold specks drifting upward
+       ======================================================== */
+    (function initParticles() {
+      const container = document.getElementById('particles');
+      const count = 18;
+
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.max(1.5, Math.random() * 3);
+        const left = Math.random() * 100;
+        const delay = Math.random() * 12;
+        const duration = 10 + Math.random() * 14;
+
+        p.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          left: ${left}%;
+          bottom: -10px;
+          animation: particleRise ${duration}s ${delay}s linear infinite;
+        `;
+        container.appendChild(p);
+      }
+
+      // Inject the keyframes
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes particleRise {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.25;
+          }
+          50% {
+            opacity: 0.15;
+          }
+          90% {
+            opacity: 0.05;
+          }
+          100% {
+            transform: translateY(-105vh) translateX(${Math.random() > 0.5 ? '' : '-'}${20 + Math.random() * 40}px);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    })();
+
+    /* ========================================================
+       KEYBOARD SUPPORT — allow Enter/Space on focused options
+       ======================================================== */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const focused = document.activeElement;
+        if (focused && focused.classList.contains('quiz-option') && !focused.disabled) {
+          e.preventDefault();
+          focused.click();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
